@@ -20,12 +20,10 @@ modelo, tokenizer = cargar_modelo()
 # FUNCIÓN PREDECIR
 # ─────────────────────────────────────────────────────────────
 def predecir(comentario):
-    # Transformar el texto igual que en el entrenamiento
     matriz = tokenizer.texts_to_matrix([comentario], mode='tfidf')
     matriz = matriz / np.amax(np.absolute(matriz))
     matriz = matriz - np.mean(matriz)
 
-    # Predicción
     prediccion = modelo.predict(matriz, verbose=0)
     prob_no_spam = prediccion[0][0] * 100
     prob_spam    = prediccion[0][1] * 100
@@ -55,12 +53,15 @@ if st.button("Analizar"):
         # PROBABILIDADES
         col1, col2 = st.columns(2)
         with col1:
-            st.metric(label="Probabilidad SPAM",      value=f"{prob_spam:.2f}%")
+            st.metric(label="Probabilidad SPAM",     value=f"{prob_spam:.2f}%")
         with col2:
-            st.metric(label="Probabilidad legítimo",  value=f"{prob_no_spam:.2f}%")
+            st.metric(label="Probabilidad legítimo", value=f"{prob_no_spam:.2f}%")
 
+        # BARRA DE PROGRESO — corregida y con clamp estricto
         st.subheader("Nivel de riesgo")
-        st.progress(float(np.clip(prob_spam, 0, 100)) / 100)
+        valor_progress = round(float(prob_spam) / 100, 4)
+        valor_progress = max(0.0, min(1.0, valor_progress))
+        st.progress(valor_progress)
 
         # MENSAJE EXTRA
         if prob_spam > 90:
