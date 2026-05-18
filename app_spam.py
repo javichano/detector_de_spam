@@ -60,7 +60,7 @@ if st.button("Analizar"):
             st.metric(label="Probabilidad legítimo",  value=f"{prob_no_spam:.2f}%")
 
         st.subheader("Nivel de riesgo")
-        st.progress(int(prob_spam) / 100)
+        st.progress(float(np.clip(prob_spam, 0, 100)) / 100)
 
         # MENSAJE EXTRA
         if prob_spam > 90:
